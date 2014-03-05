@@ -19,6 +19,9 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
+
+        mavenRepo 'http://alm-build:8080/nexus/content/groups/public'
+        mavenRepo 'http://alm-build:8080/nexus/content/groups/public-snapshots'
     }
 
     dependencies {
@@ -33,7 +36,8 @@ grails.project.dependency.resolution = {
                 "org.eclipse.jetty.aggregate:jetty-webapp:${jettyVersion}",
                 "org.eclipse.jetty.aggregate:jetty-servlet:${jettyVersion}",
                 "org.eclipse.jetty.aggregate:jetty-plus:${jettyVersion}",
-                "org.eclipse.jetty.aggregate:jetty-websocket:${jettyVersion}"
+                "org.eclipse.jetty.aggregate:jetty-websocket:${jettyVersion}",
+                "org.eclipse.jetty:jetty-nosql:${jettyVersion}",
         ) {
             excludes group: 'org.eclipse.jetty.orbit'
             excludes 'commons-el', 'ant', 'sl4j-api', 'sl4j-simple', 'jcl104-over-slf4j', 'xmlParserAPIs'
@@ -47,5 +51,11 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:1.0.2") {
             export = false
         }
+    }
+}
+
+grails.project.dependency.distribution = {
+    remoteRepository(id: 'orcaSnapshots', url: 'http://es-hobsy-01.rallydev.com:8081/nexus/content/repositories/snapshots') {
+        authentication username: 'deployment', password: 'fizz64_sack'
     }
 }

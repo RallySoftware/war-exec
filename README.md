@@ -1,3 +1,14 @@
+Fork of https://github.com/davidtinker/war-exec to support Jetty session clustering with Mongo.
+
+### Plugin development
+
+Deploy snapshots using:
+```
+./grailsw maven-deploy --repository=orcaSnapshots
+```
+
+# Original Docs
+
 War-Exec Plugin
 ===============
 

@@ -1,8 +1,11 @@
 package standalone;
 
+import org.eclipse.jetty.nosql.mongodb.MongoSessionIdManager;
+import org.eclipse.jetty.nosql.mongodb.MongoSessionManager;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 
@@ -24,11 +27,16 @@ public class Start {
         ins.close();
 
         for (Map.Entry e : System.getProperties().entrySet()) {
-            String key = (String)e.getKey();
-            if (key.startsWith("jetty.")) p.setProperty(key, (String)e.getValue());
+            String key = (String) e.getKey();
+            if (key.startsWith("jetty.")) p.setProperty(key, (String) e.getValue());
         }
 
         Server server = new Server();
+
+        MongoSessionIdManager idMgr = new MongoSessionIdManager(server);
+        idMgr.setWorkerName("mongoSessionIdManager");
+        idMgr.setScavengePeriod(60);
+        server.setSessionIdManager(idMgr);
 
         QueuedThreadPool tp = new QueuedThreadPool();
         tp.setMaxThreads(Integer.parseInt(p.getProperty("jetty.max.threads", "254")));
@@ -71,6 +79,11 @@ public class Start {
         context.setContextPath(p.getProperty("jetty.context.path", "/"));
         context.setTempDirectory(new File(temp, war.getName()));
         context.setWar(war.toString());
+
+        SessionHandler sessionHandler = new SessionHandler();
+        MongoSessionManager mongoMgr = new MongoSessionManager();
+        mongoMgr.setSessionIdManager(server.getSessionIdManager());
+        sessionHandler.setSessionManager(mongoMgr);
 
         server.setHandler(context);
         try {
