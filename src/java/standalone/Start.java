@@ -1,5 +1,10 @@
 package standalone;
 
+import com.mongodb.DB;
+import com.mongodb.DBAddress;
+import com.mongodb.DBCollection;
+import com.mongodb.Mongo;
+import com.mongodb.WriteConcern;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionIdManager;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionManager;
 import org.eclipse.jetty.server.Connector;
@@ -11,6 +16,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -28,15 +34,17 @@ public class Start {
 
         for (Map.Entry e : System.getProperties().entrySet()) {
             String key = (String) e.getKey();
-            if (key.startsWith("jetty.")) p.setProperty(key, (String) e.getValue());
+            if (key.startsWith("jetty.")) {
+                p.setProperty(key, (String) e.getValue());
+            }
         }
 
         Server server = new Server();
 
-        MongoSessionIdManager idMgr = new MongoSessionIdManager(server);
-        idMgr.setWorkerName("mongoSessionIdManager");
-        idMgr.setScavengePeriod(60);
-        server.setSessionIdManager(idMgr);
+        //Mongo
+        String mongoHostName = p.getProperty("jetty.mongo.hostname", "localhost");
+        int mongoPort = Integer.parseInt(p.getProperty("jetty.mongo.port", "27017"));
+        configureMongoIdManager(server, mongoHostName, mongoPort);
 
         QueuedThreadPool tp = new QueuedThreadPool();
         tp.setMaxThreads(Integer.parseInt(p.getProperty("jetty.max.threads", "254")));
@@ -80,10 +88,8 @@ public class Start {
         context.setTempDirectory(new File(temp, war.getName()));
         context.setWar(war.toString());
 
-        SessionHandler sessionHandler = new SessionHandler();
-        MongoSessionManager mongoMgr = new MongoSessionManager();
-        mongoMgr.setSessionIdManager(server.getSessionIdManager());
-        sessionHandler.setSessionManager(mongoMgr);
+        //Mongo
+        configureMongoSessionHandler(server, context);
 
         server.setHandler(context);
         try {
@@ -94,4 +100,26 @@ public class Start {
             System.exit(1);
         }
     }
+
+    private static void configureMongoIdManager(Server server, String mongoHost, int mongoPort) throws UnknownHostException {
+        String databaseName = "jetty_sessions";
+        DBAddress mongoAddress = new DBAddress(mongoHost, mongoPort, databaseName);
+        DB db = Mongo.connect(mongoAddress);
+        db.setWriteConcern(WriteConcern.SAFE);
+        DBCollection dbCollection = db.getCollection("sessions");
+
+        MongoSessionIdManager idMgr = new MongoSessionIdManager(server, dbCollection);
+        idMgr.setWorkerName(java.net.InetAddress.getLocalHost().getHostName());
+        idMgr.setScavengePeriod(60);
+        server.setSessionIdManager(idMgr);
+    }
+
+    private static void configureMongoSessionHandler(Server server, WebAppContext context) throws UnknownHostException {
+        SessionHandler sessionHandler = new SessionHandler();
+        MongoSessionManager mongoMgr = new MongoSessionManager();
+        mongoMgr.setSessionIdManager(server.getSessionIdManager());
+        sessionHandler.setSessionManager(mongoMgr);
+        context.setSessionHandler(sessionHandler);
+    }
+
 }

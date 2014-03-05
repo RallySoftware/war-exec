@@ -4,6 +4,7 @@ eventCreateWarStart = { String warName, File stagingDir ->
     def jarsToUnpack = []
 
     libDir.eachFileMatch(~/jetty-.*\.jar/) { jarsToUnpack << it }
+    libDir.eachFileMatch(~/mongo-.*\.jar/) { jarsToUnpack << it }
     libDir.eachFileMatch(~/tomcat-servlet-api-.*\.jar/) { jarsToUnpack << it }
 
     jarsToUnpack.each {

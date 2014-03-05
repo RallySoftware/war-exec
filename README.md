@@ -7,6 +7,11 @@ Deploy snapshots using:
 ./grailsw maven-deploy --repository=orcaSnapshots
 ```
 
+Note: When running orca with the mongo switches, order matters.  Don't put the war first.
+```
+java -Djetty.mongo.hostname=localhost -Djetty.mongo.port=27017 -jar orca-api.war
+```
+
 # Original Docs
 
 War-Exec Plugin
