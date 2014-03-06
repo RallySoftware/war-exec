@@ -109,7 +109,7 @@ public class Start {
         DBCollection dbCollection = db.getCollection("sessions");
 
         MongoSessionIdManager idMgr = new MongoSessionIdManager(server, dbCollection);
-        idMgr.setWorkerName(java.net.InetAddress.getLocalHost().getHostName());
+        idMgr.setWorkerName(java.net.InetAddress.getLocalHost().getHostName().replace('.', '_'));
         idMgr.setScavengePeriod(60);
         server.setSessionIdManager(idMgr);
     }
