@@ -30,7 +30,7 @@ grails.project.dependency.resolution = {
         // Grails/Ivy doesn't like the org.eclipse.jetty.orbit stuff
         // https://jira.codehaus.org/browse/JETTY-1493
         // The exclude gets rid of the servlet api jar so I had to put the one from Tomcat in lib
-        def jettyVersion = "8.1.4.v20120524"
+        def jettyVersion = "8.1.14.v20131031"
         runtime(
                 "org.eclipse.jetty.aggregate:jetty-server:${jettyVersion}",
                 "org.eclipse.jetty.aggregate:jetty-webapp:${jettyVersion}",
