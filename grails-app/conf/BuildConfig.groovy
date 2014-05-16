@@ -61,7 +61,7 @@ grails.project.dependency.resolution = {
 }
 
 grails.project.dependency.distribution = {
-    remoteRepository(id: 'orcaSnapshots', url: 'http://es-hobsy-01.rallydev.com:8081/nexus/content/repositories/snapshots') {
+    remoteRepository(id: 'orcaSnapshots', url: 'http://es-hobsy-01.f4tech.com:8081/nexus/content/repositories/snapshots') {
         authentication username: 'deployment', password: 'fizz64_sack'
     }
 }
