@@ -11,6 +11,7 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
         grailsCentral()
+        mavenCentral()
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
         //mavenLocal()
@@ -27,6 +28,8 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
 
+        test "org.grails.plugins:spock:0.7"
+
         // Grails/Ivy doesn't like the org.eclipse.jetty.orbit stuff
         // https://jira.codehaus.org/browse/JETTY-1493
         // The exclude gets rid of the servlet api jar so I had to put the one from Tomcat in lib
@@ -42,7 +45,9 @@ grails.project.dependency.resolution = {
             excludes group: 'org.eclipse.jetty.orbit'
             excludes 'commons-el', 'ant', 'sl4j-api', 'sl4j-simple', 'jcl104-over-slf4j', 'xmlParserAPIs'
             excludes 'mail', 'commons-lang'
+            excludes 'org.mongodb', 'mongo-java-driver'
         }
+        runtime 'org.mongodb:mongo-java-driver:2.12.1'
     }
 
     plugins {
@@ -51,6 +56,7 @@ grails.project.dependency.resolution = {
               ":rest-client-builder:1.0.2") {
             export = false
         }
+        test "org.grails.plugins:spock:0.7"
     }
 }
 

@@ -1,7 +1,7 @@
 class WarExecGrailsPlugin {
 
     def groupId = 'com.rallydev.plugins.grails'
-    def version = "2.0.4-SNAPSHOT"
+    def version = "2.0.5-SNAPSHOT"
 
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.0 > *"

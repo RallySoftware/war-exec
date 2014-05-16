@@ -4,6 +4,8 @@ import com.mongodb.DB;
 import com.mongodb.DBAddress;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionIdManager;
 import org.eclipse.jetty.nosql.mongodb.MongoSessionManager;
@@ -17,6 +19,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import java.io.File;
 import java.io.InputStream;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,9 +46,7 @@ public class Start {
         Server server = new Server();
 
         //Mongo
-        String mongoHostName = p.getProperty("jetty.mongo.hostname", "localhost");
-        int mongoPort = Integer.parseInt(p.getProperty("jetty.mongo.port", "27017"));
-        configureMongoIdManager(server, mongoHostName, mongoPort);
+        configureMongoIdManager(server, parseServers(p.getProperty("jetty.mongo.hosts", "localhost:27017")));
 
         QueuedThreadPool tp = new QueuedThreadPool();
         tp.setMaxThreads(Integer.parseInt(p.getProperty("jetty.max.threads", "254")));
@@ -101,10 +103,11 @@ public class Start {
         }
     }
 
-    private static void configureMongoIdManager(Server server, String mongoHost, int mongoPort) throws UnknownHostException {
+    private static void configureMongoIdManager(Server server, List<ServerAddress> mongoServers) throws UnknownHostException {
         String databaseName = "jetty_sessions";
-        DBAddress mongoAddress = new DBAddress(mongoHost, mongoPort, databaseName);
-        DB db = Mongo.connect(mongoAddress);
+        MongoClient client = mongoServers.size() > 1 ? new MongoClient(mongoServers) : new MongoClient(mongoServers.get(0));
+        DB db = client.getDB(databaseName);
+
         db.setWriteConcern(WriteConcern.SAFE);
         DBCollection dbCollection = db.getCollection("sessions");
 
@@ -112,6 +115,18 @@ public class Start {
         idMgr.setWorkerName(java.net.InetAddress.getLocalHost().getHostName().replace('.', '_'));
         idMgr.setScavengePeriod(60);
         server.setSessionIdManager(idMgr);
+    }
+
+    public static List<ServerAddress> parseServers(String hostsAndPorts) throws UnknownHostException{
+        String[] hostsAndPortsArray = hostsAndPorts.split("[\\s]*,[\\s]*");
+        List<ServerAddress> serverAddresses = new ArrayList<ServerAddress>();
+
+        for (String hostAndPort : hostsAndPortsArray) {
+            String[] split = hostAndPort.split(":");
+            serverAddresses.add(new ServerAddress(split[0],Integer.parseInt(split[1])));
+        }
+
+        return serverAddresses;
     }
 
     private static void configureMongoSessionHandler(Server server, WebAppContext context) throws UnknownHostException {

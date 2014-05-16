@@ -1,5 +1,7 @@
 *.iml
 .idea
+*.ipr
+
 grails
 grails-war-exec-*.zip
 plugin.xml
