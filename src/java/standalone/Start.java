@@ -92,6 +92,7 @@ public class Start {
 
         //Mongo
         configureMongoSessionHandler(server, context);
+        context.getSessionHandler().getSessionManager().getSessionCookieConfig().setName("ORCA_JSESSIONID");
 
         server.setHandler(context);
         try {

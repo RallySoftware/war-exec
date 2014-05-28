@@ -102,11 +102,6 @@ Then you can configure the virtual hosts to proxy your application:
 
 Note that this works with HTTPS virtual hosts as well.
 
-
-Changelog
----------
-
-1.0.3: 8 May 2013: Jetty connector now has forwarded=true so X-Forwarded-For etc. are picked up and
-  request.getRemoteAddr() works properly
-
-1.0.2: 7 Jan 2013: Added support for listening on multiple hosts with different ports.
+Publishing
+----------
+./grailsw publish-plugin --repository=orcaSnapshots
